@@ -113,8 +113,8 @@ LoadProfileAnalyzer/
 ### Tech-Stack
 - **Frontend**: Vanilla JavaScript (ES6+)
 - **Styling**: Tailwind CSS
-- **Charts**: Chart.js 3.9.1
-- **CSV-Parsing**: PapaParse 5.3.2
+- **Charts**: Chart.js 4.4.1
+- **CSV-Parsing**: PapaParse 5.4.1
 - **Deployment**: GitHub Pages
 - **CI/CD**: GitHub Actions
 
