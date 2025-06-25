@@ -1,0 +1,152 @@
+/* Stromverbrauchsanalyse - Zusätzliche Styles */
+
+/* Drag & Drop Zone Styling */
+#drop-zone {
+    transition: all 0.3s ease;
+}
+
+#drop-zone.dragover {
+    border-color: #3B82F6;
+    background-color: #EFF6FF;
+    transform: scale(1.02);
+}
+
+/* Chart Container Responsiveness */
+canvas {
+    max-height: 400px;
+}
+
+/* KPI Cards */
+.kpi-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.kpi-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Progress Bar Animation */
+#progress-bar {
+    transition: width 0.3s ease;
+}
+
+/* Responsive Grid Adjustments */
+@media (max-width: 768px) {
+    .grid-cols-1.lg\\:grid-cols-2 {
+        gap: 1rem;
+    }
+    
+    .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
+    canvas {
+        max-height: 300px;
+    }
+}
+
+/* Column Selection Checkboxes */
+#column-checkboxes {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+/* Slider Styling */
+#peak-shaving-slider {
+    appearance: none;
+    height: 6px;
+    border-radius: 3px;
+    background: #E5E7EB;
+    outline: none;
+}
+
+#peak-shaving-slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #3B82F6;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+#peak-shaving-slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #3B82F6;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Loading Animation */
+.loading-spinner {
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #3B82F6;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Error Message Styling */
+#error-message {
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Download Button Hover Effect */
+button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Chart Container Styling */
+.chart-container {
+    position: relative;
+    height: 400px;
+    margin-bottom: 1rem;
+}
+
+/* Utility Classes */
+.fade-in {
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.slide-up {
+    animation: slideUp 0.5s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
