@@ -403,7 +403,7 @@ class LoadAnalyzer {
                 },
                 scales: {
                     x: { title: { display: true, text: 'Leistung (kW)' } },
-Anzahl Messpunkte' } }
+                    y: { title: { display: true, text: 'Anzahl Messpunkte' } }
                 }
             }
         });
