@@ -873,7 +873,7 @@ class LoadAnalyzer {
     if (!bar || !container) return;
     container.classList.remove("hidden");
     bar.style.width = `${pct}%`;
-    document.getElementById("progress-text")!.textContent = msg;
+    document.getElementById("progress-text").textContent = msg;
   }
 
   hideProgress() {
