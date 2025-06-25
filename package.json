@@ -1,5 +1,5 @@
 {
-  "name": "load-analysis",
+  "name": "LoadProfileAnalyzer",
   "version": "1.0.0",
   "description": "Interaktive Stromverbrauchsanalyse für Jahres-Lastgänge",
   "main": "docs/index.html",
@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ihr-username/load-analysis.git"
+    "url": "git+https://github.com/ihr-username/LoadProfileAnalyzer.git"
   },
   "keywords": [
     "energy",
@@ -28,9 +28,9 @@
   "author": "Ihr Name",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/ihr-username/load-analysis/issues"
+    "url": "https://github.com/ihr-username/LoadProfileAnalyzer/issues"
   },
-  "homepage": "https://ihr-username.github.io/load-analysis",
+  "homepage": "https://ihr-username.github.io/LoadProfileAnalyzer",
   "devDependencies": {
     "eslint": "^8.50.0",
     "prettier": "^2.8.8",
