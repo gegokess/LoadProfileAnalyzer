@@ -1,155 +1,279 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Stromverbrauchsanalyse</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/style.css">
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="assets/css/style.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-</head>
-<body class="bg-gray-50 min-h-screen">
+  </head>
+  <body class="bg-gray-50 min-h-screen">
     <div class="container mx-auto px-4 py-8">
-        <!-- Header -->
-        <header class="text-center mb-8">
-            <h1 class="text-4xl font-bold text-gray-800 mb-2">Stromverbrauchsanalyse</h1>
-            <p class="text-gray-600">Analysieren Sie Ihren Jahresstromlastgang mit interaktiven Visualisierungen</p>
-        </header>
+      <!-- Header -->
+      <header class="text-center mb-8">
+        <h1 class="text-4xl font-bold text-gray-800 mb-2">
+          Stromverbrauchsanalyse
+        </h1>
+        <p class="text-gray-600">
+          Analysieren Sie Ihren Jahresstromlastgang mit interaktiven
+          Visualisierungen
+        </p>
+      </header>
 
-        <!-- Upload Section -->
-        <div id="upload-section" class="max-w-2xl mx-auto mb-8">
-            <div class="bg-white rounded-lg shadow-md p-6">
-                <h2 class="text-2xl font-semibold mb-4">CSV-Datei hochladen</h2>
-                
-                <!-- Drag & Drop Zone -->
-                <div id="drop-zone" class="border-2 border-dashed border-blue-300 rounded-lg p-8 text-center transition-colors hover:border-blue-400 cursor-pointer">
-                    <div class="mb-4">
-                        <svg class="mx-auto h-12 w-12 text-blue-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </div>
-                    <p class="text-lg mb-2">CSV-Datei hier ablegen oder klicken zum Auswählen</p>
-                    <p class="text-sm text-gray-500">Maximale Dateigröße: 50 MB</p>
-                    <input type="file" id="file-input" accept=".csv" class="hidden">
-                </div>
+      <!-- Upload Section -->
+      <div id="upload-section" class="max-w-2xl mx-auto mb-8">
+        <div class="bg-white rounded-lg shadow-md p-6">
+          <h2 class="text-2xl font-semibold mb-4">CSV-Datei hochladen</h2>
 
-                <!-- Progress Bar -->
-                <div id="progress-container" class="mt-4 hidden">
-                    <div class="bg-gray-200 rounded-full h-2">
-                        <div id="progress-bar" class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
-                    </div>
-                    <p id="progress-text" class="text-sm text-gray-600 mt-1">Wird verarbeitet...</p>
-                </div>
-
-                <!-- Error Messages -->
-                <div id="error-message" class="mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded hidden"></div>
+          <!-- Drag & Drop Zone -->
+          <div
+            id="drop-zone"
+            class="border-2 border-dashed border-blue-300 rounded-lg p-8 text-center transition-colors hover:border-blue-400 cursor-pointer"
+          >
+            <div class="mb-4">
+              <svg
+                class="mx-auto h-12 w-12 text-blue-400"
+                stroke="currentColor"
+                fill="none"
+                viewBox="0 0 48 48"
+              >
+                <path
+                  d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
             </div>
+            <p class="text-lg mb-2">
+              CSV-Datei hier ablegen oder klicken zum Auswählen
+            </p>
+            <p class="text-sm text-gray-500">Maximale Dateigröße: 50 MB</p>
+            <input type="file" id="file-input" accept=".csv" class="hidden" />
+          </div>
 
-            <!-- Format Info -->
-            <div class="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <h3 class="font-semibold text-blue-800 mb-2">Erwartetes CSV-Format:</h3>
-                <ul class="text-sm text-blue-700 space-y-1">
-                    <li>• Zeitstempel (ISO-8601, Europe/Berlin) + Leistungsspalte(n) in kW</li>
-                    <li>• Beispiel: "2024-01-01T00:00:00+01:00,25.5"</li>
-                    <li>• Mehrere Messpunkte unterstützt</li>
-                    <li>• Fehlwerte werden automatisch behandelt</li>
-                </ul>
+          <!-- Progress Bar -->
+          <div id="progress-container" class="mt-4 hidden">
+            <div class="bg-gray-200 rounded-full h-2">
+              <div
+                id="progress-bar"
+                class="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                style="width: 0%"
+              ></div>
             </div>
+            <p id="progress-text" class="text-sm text-gray-600 mt-1">
+              Wird verarbeitet...
+            </p>
+          </div>
+
+          <!-- Error Messages -->
+          <div
+            id="error-message"
+            class="mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded hidden"
+          ></div>
+
+          <!-- Timestamp Selection -->
+          <div id="timestamp-selection" class="mt-4 hidden">
+            <h3 class="text-lg font-semibold mb-2">Zeitspalten auswählen</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label
+                  for="date-column"
+                  class="block text-sm font-medium text-gray-700 mb-1"
+                  >Datumsspalte</label
+                >
+                <select
+                  id="date-column"
+                  class="w-full border-gray-300 rounded p-2"
+                ></select>
+              </div>
+              <div>
+                <label
+                  for="time-column"
+                  class="block text-sm font-medium text-gray-700 mb-1"
+                  >Zeitspalte (optional)</label
+                >
+                <select
+                  id="time-column"
+                  class="w-full border-gray-300 rounded p-2"
+                ></select>
+              </div>
+            </div>
+            <button
+              id="timestamp-confirm"
+              class="mt-4 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
+            >
+              Weiter
+            </button>
+          </div>
         </div>
 
-        <!-- Main Content -->
-        <div id="main-content" class="hidden">
-            <!-- Data Selection -->
-            <div id="data-selection" class="bg-white rounded-lg shadow-md p-6 mb-6">
-                <h3 class="text-xl font-semibold mb-4">Datenspalten auswählen</h3>
-                <div id="column-checkboxes" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    <!-- Dynamically populated -->
-                </div>
-            </div>
-
-            <!-- KPI Dashboard -->
-            <div id="kpi-dashboard" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <!-- KPI Cards will be populated dynamically -->
-            </div>
-
-            <!-- Charts Grid -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <!-- Load Duration Curve -->
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-xl font-semibold">Lastdauerkurve</h3>
-                        <button onclick="downloadChart('loadDurationChart')" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm">PNG Download</button>
-                    </div>
-                    <canvas id="loadDurationChart" width="400" height="300"></canvas>
-                </div>
-
-                <!-- Load Histogram -->
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-xl font-semibold">Leistungsverteilung</h3>
-                        <button onclick="downloadChart('histogramChart')" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm">PNG Download</button>
-                    </div>
-                    <canvas id="histogramChart" width="400" height="300"></canvas>
-                </div>
-
-                <!-- Heatmap -->
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-xl font-semibold">Wochentagsprofil</h3>
-                        <button onclick="downloadChart('heatmapChart')" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm">PNG Download</button>
-                    </div>
-                    <canvas id="heatmapChart" width="400" height="300"></canvas>
-                </div>
-
-                <!-- Monthly Consumption -->
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-xl font-semibold">Monatsverbrauch</h3>
-                        <button onclick="downloadChart('monthlyChart')" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm">PNG Download</button>
-                    </div>
-                    <canvas id="monthlyChart" width="400" height="300"></canvas>
-                </div>
-
-                <!-- Box Plots -->
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-xl font-semibold">Monatliche Verteilung</h3>
-                        <button onclick="downloadChart('boxplotChart')" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm">PNG Download</button>
-                    </div>
-                    <canvas id="boxplotChart" width="400" height="300"></canvas>
-                </div>
-
-                <!-- Daily Profile Comparison -->
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-xl font-semibold">Tagesprofil-Vergleich</h3>
-                        <button onclick="downloadChart('dailyProfileChart')" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm">PNG Download</button>
-                    </div>
-                    <canvas id="dailyProfileChart" width="400" height="300"></canvas>
-                </div>
-            </div>
-
-            <!-- Peak Shaving Analysis -->
-            <div class="bg-white rounded-lg shadow-md p-6 mt-8">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-xl font-semibold">Peak-Shaving-Analyse</h3>
-                    <button onclick="downloadChart('peakShavingChart')" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm">PNG Download</button>
-                </div>
-                <div class="mb-4">
-                    <label for="peak-shaving-slider" class="block text-sm font-medium text-gray-700 mb-2">
-                        Lastkappung bei: <span id="peak-shaving-value">95</span>% der Spitzenlast
-                    </label>
-                    <input type="range" id="peak-shaving-slider" min="70" max="99" value="95" class="w-full">
-                    <div class="text-sm text-gray-600 mt-2">
-                        Einsparung: <span id="peak-shaving-savings" class="font-semibold">0 kWh</span>
-                    </div>
-                </div>
-                <canvas id="peakShavingChart" width="800" height="400"></canvas>
-            </div>
+        <!-- Format Info -->
+        <div class="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <h3 class="font-semibold text-blue-800 mb-2">
+            Erwartetes CSV-Format:
+          </h3>
+          <ul class="text-sm text-blue-700 space-y-1">
+            <li>
+              • Zeitstempel (ISO-8601, Europe/Berlin) + Leistungsspalte(n) in kW
+            </li>
+            <li>• Beispiel: "2024-01-01T00:00:00+01:00,25.5"</li>
+            <li>• Mehrere Messpunkte unterstützt</li>
+            <li>• Fehlwerte werden automatisch behandelt</li>
+          </ul>
         </div>
+      </div>
+
+      <!-- Main Content -->
+      <div id="main-content" class="hidden">
+        <!-- Data Selection -->
+        <div id="data-selection" class="bg-white rounded-lg shadow-md p-6 mb-6">
+          <h3 class="text-xl font-semibold mb-4">Datenspalten auswählen</h3>
+          <div
+            id="column-checkboxes"
+            class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+          >
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- KPI Dashboard -->
+        <div
+          id="kpi-dashboard"
+          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+        >
+          <!-- KPI Cards will be populated dynamically -->
+        </div>
+
+        <!-- Charts Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <!-- Load Duration Curve -->
+          <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-xl font-semibold">Lastdauerkurve</h3>
+              <button
+                onclick="downloadChart('loadDurationChart')"
+                class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm"
+              >
+                PNG Download
+              </button>
+            </div>
+            <canvas id="loadDurationChart" width="400" height="300"></canvas>
+          </div>
+
+          <!-- Load Histogram -->
+          <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-xl font-semibold">Leistungsverteilung</h3>
+              <button
+                onclick="downloadChart('histogramChart')"
+                class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm"
+              >
+                PNG Download
+              </button>
+            </div>
+            <canvas id="histogramChart" width="400" height="300"></canvas>
+          </div>
+
+          <!-- Heatmap -->
+          <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-xl font-semibold">Wochentagsprofil</h3>
+              <button
+                onclick="downloadChart('heatmapChart')"
+                class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm"
+              >
+                PNG Download
+              </button>
+            </div>
+            <canvas id="heatmapChart" width="400" height="300"></canvas>
+          </div>
+
+          <!-- Monthly Consumption -->
+          <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-xl font-semibold">Monatsverbrauch</h3>
+              <button
+                onclick="downloadChart('monthlyChart')"
+                class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm"
+              >
+                PNG Download
+              </button>
+            </div>
+            <canvas id="monthlyChart" width="400" height="300"></canvas>
+          </div>
+
+          <!-- Box Plots -->
+          <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-xl font-semibold">Monatliche Verteilung</h3>
+              <button
+                onclick="downloadChart('boxplotChart')"
+                class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm"
+              >
+                PNG Download
+              </button>
+            </div>
+            <canvas id="boxplotChart" width="400" height="300"></canvas>
+          </div>
+
+          <!-- Daily Profile Comparison -->
+          <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-xl font-semibold">Tagesprofil-Vergleich</h3>
+              <button
+                onclick="downloadChart('dailyProfileChart')"
+                class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm"
+              >
+                PNG Download
+              </button>
+            </div>
+            <canvas id="dailyProfileChart" width="400" height="300"></canvas>
+          </div>
+        </div>
+
+        <!-- Peak Shaving Analysis -->
+        <div class="bg-white rounded-lg shadow-md p-6 mt-8">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-semibold">Peak-Shaving-Analyse</h3>
+            <button
+              onclick="downloadChart('peakShavingChart')"
+              class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm"
+            >
+              PNG Download
+            </button>
+          </div>
+          <div class="mb-4">
+            <label
+              for="peak-shaving-slider"
+              class="block text-sm font-medium text-gray-700 mb-2"
+            >
+              Lastkappung bei: <span id="peak-shaving-value">95</span>% der
+              Spitzenlast
+            </label>
+            <input
+              type="range"
+              id="peak-shaving-slider"
+              min="70"
+              max="99"
+              value="95"
+              class="w-full"
+            />
+            <div class="text-sm text-gray-600 mt-2">
+              Einsparung:
+              <span id="peak-shaving-savings" class="font-semibold">0 kWh</span>
+            </div>
+          </div>
+          <canvas id="peakShavingChart" width="800" height="400"></canvas>
+        </div>
+      </div>
     </div>
 
     <script src="assets/js/main.js"></script>
-</body>
+  </body>
 </html>
