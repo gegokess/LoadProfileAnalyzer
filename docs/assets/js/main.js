@@ -1,4 +1,3 @@
-// main.js: Vollständig überarbeitete Version mit erweiterten Funktionen
 import Papa from 'papaparse';
 import Chart from 'chart.js/auto';
 import 'chartjs-chart-matrix'; // echte Heatmap-Unterstützung
