@@ -73,6 +73,17 @@ python -m http.server 8000
 npx serve .
 ```
 
+### Manuelle Überprüfung
+
+Um die Histogramm-Funktion ohne Daten zu testen, kann in der Browser-Konsole
+folgender Befehl ausgeführt werden:
+
+```javascript
+const a = new LoadAnalyzer();
+a.createHistogramBins([], 5);
+// => [{min: 0, max: 0, count: 0}, ...]
+```
+
 ## 📁 Projektstruktur
 
 ```
