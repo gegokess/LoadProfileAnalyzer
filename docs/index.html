@@ -131,6 +131,51 @@
         </div>
       </div>
 
+      <!-- ----------------------------------------
+     OPTIONAL: Analyse-Einstellungen
+     ---------------------------------------- -->
+    <div id="options-section" class="max-w-2xl mx-auto mb-8 bg-white rounded-lg shadow-md p-6">
+      <h2 class="text-2xl font-semibold mb-4">Analyse-Optionen (optional)</h2>
+      <!-- Auflösung -->
+      <div class="mb-4">
+        <label for="resolution-select" class="block text-sm font-medium text-gray-700 mb-1">Auflösung (Stunden)</label>
+        <select id="resolution-select" class="w-full border-gray-300 rounded p-2">
+          <option value="">Keine</option>
+          <option value="0.25">15 Minuten</option>
+          <option value="1">1 Stunde</option>
+          <option value="4">4 Stunden</option>
+          <option value="24">1 Tag</option>
+        </select>
+      </div>
+      <!-- Einheit kW / kWh -->
+      <div class="flex items-center mb-4 space-x-2">
+        <span class="text-sm">Leistung (kW)</span>
+        <label class="inline-flex relative items-center cursor-pointer">
+          <input type="checkbox" id="unit-switch" class="sr-only peer">
+          <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-rounded-lg peer peer-checked:bg-blue-600"></div>
+        </label>
+        <span class="text-sm">Energie (kWh)</span>
+      </div>
+      <!-- Eigener Datums-Parser -->
+      <div class="mb-4">
+        <label for="date-format-input" class="block text-sm font-medium text-gray-700 mb-1">Datum-Format (optional)</label>
+        <input
+          type="text"
+          id="date-format-input"
+          placeholder="z.B. dd.MM.yyyy HH:mm:ss"
+          class="w-full border-gray-300 rounded p-2"
+        />
+      </div>
+      <!-- Custom Groups -->
+      <button
+        id="add-group-btn"
+        class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded"
+      >
+        Gruppe hinzufügen
+      </button>
+    </div>
+
+
       <!-- Main Content -->
       <div id="main-content" class="hidden">
         <!-- Data Selection -->
