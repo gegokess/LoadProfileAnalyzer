@@ -720,8 +720,6 @@ class LoadAnalyzer {
     }
 
     generatePeakShaving() {
-        const ctx = document.getElementById('peakShavingChart').getContext('2d');
-        
         if (this.charts.peakShaving) {
             this.charts.peakShaving.destroy();
         }
@@ -846,6 +844,7 @@ class LoadAnalyzer {
 }
 
 // Chart download functionality
+/* exported downloadChart */
 function downloadChart(chartId) {
     const canvas = document.getElementById(chartId);
     if (!canvas) return;
