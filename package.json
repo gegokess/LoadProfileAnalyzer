@@ -1,0 +1,33 @@
+{
+  "name": "load-analysis",
+  "version": "1.0.0",
+  "description": "Interaktive Stromverbrauchsanalyse für Jahres-Lastgänge",
+  "main": "docs/index.html",
+  "scripts": {
+    "build": "echo 'Build completed - static site ready'",
+    "serve": "npx serve docs",
+    "lint": "eslint docs/assets/js/*.js",
+    "lint:fix": "eslint docs/assets/js/*.js --fix",
+    "format": "prettier --write docs/assets/js/*.js docs/assets/css/*.css docs/*.html",
+    "format:check": "prettier --check docs/assets/js/*.js docs/assets/css/*.css docs/*.html"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ihr-username/load-analysis.git"
+  },
+  "keywords": [
+    "energy",
+    "analysis",
+    "load-curve",
+    "electricity",
+    "visualization",
+    "csv",
+    "charts",
+    "github-pages"
+  ],
+  "author": "Ihr Name",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ihr-username/load-analysis/issues"
+  },
+  "homepage
