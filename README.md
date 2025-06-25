@@ -57,13 +57,13 @@ timestamp,load_kw,load_2_kw
 1. Repository forken oder klonen
 2. In GitHub Settings → Pages → Source: "Deploy from a branch"
 3. Branch: `main`, Folder: `/docs`
-4. Die Anwendung ist verfügbar unter: `https://ihr-username.github.io/load-analysis/`
+4. Die Anwendung ist verfügbar unter: `https://ihr-username.github.io/LoadProfileAnalyzer/`
 
 ### Lokale Entwicklung
 ```bash
 # Repository klonen
-git clone https://github.com/ihr-username/load-analysis.git
-cd load-analysis
+git clone https://github.com/ihr-username/LoadProfileAnalyzer.git
+cd LoadProfileAnalyzer
 
 # Lokalen Server starten (z.B. mit Python)
 cd docs
@@ -76,7 +76,7 @@ npx serve .
 ## 📁 Projektstruktur
 
 ```
-load-analysis/
+LoadProfileAnalyzer/
 ├── docs/                           # GitHub Pages Root
 │   ├── index.html                  # Haupt-HTML-Datei
 │   ├── assets/
@@ -161,8 +161,8 @@ Dieses Projekt steht unter der MIT-Lizenz. Siehe [LICENSE](LICENSE) für Details
 ## 📞 Support
 
 Bei Fragen oder Problemen:
-- [Issues auf GitHub](https://github.com/ihr-username/load-analysis/issues) erstellen
-- [Discussions](https://github.com/ihr-username/load-analysis/discussions) für Fragen
+- [Issues auf GitHub](https://github.com/ihr-username/LoadProfileAnalyzer/issues) erstellen
+- [Discussions](https://github.com/ihr-username/LoadProfileAnalyzer/discussions) für Fragen
 
 ---
 
