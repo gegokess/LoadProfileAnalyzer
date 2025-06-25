@@ -1,4 +1,31 @@
-// External libraries loaded via CDN
+/*
+ * Load Profile Analyzer – revised main.js
+ * Fixes:
+ * 1. Guards against missing DOM elements (resolution-select, date-format-input, etc.).
+ * 2. Registers the matrix controller/element with Chart.js v4 at runtime (only if necessary).
+ * 3. Minor defensive checks to reduce runtime errors when optional elements are absent.
+ */
+
+/* global dateFns, Chart, MatrixController, MatrixElement */
+
+// -----------------------------------------------------------------------------
+//  Runtime registration of the matrix plugin (Chart.js ≥ 4.x)
+// -----------------------------------------------------------------------------
+(() => {
+  try {
+    if (
+      typeof Chart !== "undefined" &&
+      typeof Chart.register === "function" &&
+      typeof MatrixController !== "undefined" &&
+      typeof MatrixElement !== "undefined"
+    ) {
+      Chart.register(MatrixController, MatrixElement);
+    }
+  } catch (e) {
+    console.warn("[LoadAnalyzer] Matrix plugin registration skipped:", e);
+  }
+})();
+
 const { parse, isValid } = dateFns;
 
 class LoadAnalyzer {
@@ -8,14 +35,17 @@ class LoadAnalyzer {
     this.resampled = null;
     this.selectedColumns = [];
     this.charts = {};
-    this.maxFileSize = 50 * 1024 * 1024; // 50 MB
-    this.unitMode = "power"; // 'power' (kW) oder 'energy' (kWh)
-    this.resolution = null; // in Stunden
+    this.maxFileSize = 50 * 1024 * 1024; // 50 MB
+    this.unitMode = "power"; // 'power' (kW) or 'energy' (kWh)
+    this.resolution = null; // in hours
     this.customDateFormat = null;
     this.customGroups = [];
     this.initializeEventListeners();
   }
 
+  // ---------------------------------------------------------------------------
+  //  DOM Event‑Handling helpers
+  // ---------------------------------------------------------------------------
   initializeEventListeners() {
     const dropZone = document.getElementById("drop-zone");
     const fileInput = document.getElementById("file-input");
@@ -24,43 +54,60 @@ class LoadAnalyzer {
     const formatInput = document.getElementById("date-format-input");
     const addGroupBtn = document.getElementById("add-group-btn");
 
-    // Drag & Drop
-    dropZone.addEventListener("click", () => fileInput.click());
-    dropZone.addEventListener("dragover", this.handleDragOver.bind(this));
-    dropZone.addEventListener("drop", this.handleFileDrop.bind(this));
+    // Drag & Drop --------------------------------------------------------------
+    if (dropZone && fileInput) {
+      dropZone.addEventListener("click", () => fileInput.click());
+      dropZone.addEventListener("dragover", this.handleDragOver.bind(this));
+      dropZone.addEventListener("drop", this.handleFileDrop.bind(this));
+    }
 
-    // File Input
-    fileInput.addEventListener("change", (e) => {
-      if (e.target.files.length > 0) this.processFile(e.target.files[0]);
-    });
+    // File <input> -------------------------------------------------------------
+    if (fileInput) {
+      fileInput.addEventListener("change", (e) => {
+        if (e.target.files.length > 0) this.processFile(e.target.files[0]);
+      });
+    }
 
-    // Auflösungswahl
-    resolutionSelect.addEventListener("change", (e) => {
-      this.resolution = parseFloat(e.target.value) || null;
-      if (this.rawData) {
-        this.applyResampling();
-        this.generateAnalytics();
-      }
-    });
+    // Resolution <select> ------------------------------------------------------
+    if (resolutionSelect) {
+      resolutionSelect.addEventListener("change", (e) => {
+        this.resolution = parseFloat(e.target.value) || null;
+        if (this.rawData) {
+          this.applyResampling();
+          this.generateAnalytics();
+        }
+      });
+    }
 
-    // Einheiten-Umschaltung
-    unitSwitch.addEventListener("change", (e) => {
-      this.unitMode = e.target.checked ? "energy" : "power";
-      if (this.data) this.generateAnalytics();
-    });
+    // Unit toggle switch -------------------------------------------------------
+    if (unitSwitch) {
+      unitSwitch.addEventListener("change", (e) => {
+        this.unitMode = e.target.checked ? "energy" : "power";
+        if (this.data) this.generateAnalytics();
+      });
+    }
 
-    // Benutzerdefiniertes Datumsformat
-    formatInput.addEventListener("input", (e) => {
-      this.customDateFormat = e.target.value || null;
-    });
+    // Custom date‑format input -------------------------------------------------
+    if (formatInput) {
+      formatInput.addEventListener("input", (e) => {
+        this.customDateFormat = e.target.value || null;
+      });
+    }
 
-    // Custom Groups
-    addGroupBtn.addEventListener("click", () => this.showAddGroupModal());
+    // Custom groups button -----------------------------------------------------
+    if (addGroupBtn) {
+      addGroupBtn.addEventListener("click", () => this.showAddGroupModal());
+    }
+
+    // Modal save button (optional chaining already used) -----------------------
     document
       .getElementById("group-save-btn")
       ?.addEventListener("click", this.saveCustomGroup.bind(this));
   }
 
+  // ---------------------------------------------------------------------------
+  //  Drag & drop helpers
+  // ---------------------------------------------------------------------------
   handleDragOver(e) {
     e.preventDefault();
     e.currentTarget.classList.add("border-blue-500", "bg-blue-50");
@@ -73,16 +120,20 @@ class LoadAnalyzer {
     if (files.length > 0) this.processFile(files[0]);
   }
 
+  // ---------------------------------------------------------------------------
+  //  CSV file parsing & validation
+  // ---------------------------------------------------------------------------
   processFile(file) {
     if (!file.name.toLowerCase().endsWith(".csv")) {
-      this.showError("Bitte wählen Sie eine CSV-Datei aus.");
+      this.showError("Bitte wählen Sie eine CSV‑Datei aus.");
       return;
     }
     if (file.size > this.maxFileSize) {
-      this.showError("Datei ist zu groß. Maximale Größe: 50 MB");
+      this.showError("Datei ist zu groß. Maximale Größe: 50 MB");
       return;
     }
-    this.showProgress(0, "Datei wird gelesen...");
+
+    this.showProgress(0, "Datei wird gelesen…");
     Papa.parse(file, {
       header: true,
       dynamicTyping: true,
@@ -93,8 +144,9 @@ class LoadAnalyzer {
   }
 
   handleParseComplete(results) {
-    if (results.errors.length > 0)
+    if (results.errors.length > 0) {
       console.warn("CSV Parsing Warnings:", results.errors);
+    }
     this.rawData = results.data;
     this.headers = Object.keys(this.rawData[0] || {});
     this.showTimestampSelection();
@@ -105,28 +157,37 @@ class LoadAnalyzer {
     this.showError(`Fehler beim Einlesen der CSV: ${error.message}`);
   }
 
+  // ---------------------------------------------------------------------------
+  //  Timestamp mapping UI
+  // ---------------------------------------------------------------------------
   showTimestampSelection() {
     const container = document.getElementById("timestamp-selection");
     const dateSelect = document.getElementById("date-column");
     const timeSelect = document.getElementById("time-column");
     const formatInput = document.getElementById("date-format-input");
 
+    if (!container || !dateSelect || !timeSelect) {
+      console.error("[LoadAnalyzer] Timestamp‑selection elements fehlen.");
+      return;
+    }
+
     dateSelect.innerHTML = "";
     timeSelect.innerHTML = '<option value="">(keine)</option>';
-    formatInput.value = this.customDateFormat || "";
+    if (formatInput) formatInput.value = this.customDateFormat || "";
 
     this.headers.forEach((h) => {
       const optDate = document.createElement("option");
       optDate.value = h;
       optDate.textContent = h;
       dateSelect.appendChild(optDate);
+
       const optTime = document.createElement("option");
       optTime.value = h;
       optTime.textContent = h;
       timeSelect.appendChild(optTime);
     });
 
-    // Automatischer Vorschlag
+    // Auto‑guess timestamp/date/time columns ----------------------------------
     const guess = this.findTimestampColumns(this.headers);
     if (guess.timestamp) {
       dateSelect.value = guess.timestamp;
@@ -140,11 +201,12 @@ class LoadAnalyzer {
   }
 
   handleTimestampConfirm() {
-    const dateCol = document.getElementById("date-column").value;
-    const timeCol = document.getElementById("time-column").value || null;
+    const dateCol = document.getElementById("date-column")?.value;
+    const timeCol = document.getElementById("time-column")?.value || null;
+
     try {
       this.data = this.validateAndProcessData(this.rawData, dateCol, timeCol);
-      document.getElementById("timestamp-selection").classList.add("hidden");
+      document.getElementById("timestamp-selection")?.classList.add("hidden");
       this.setupColumnSelection();
       this.applyResampling();
       this.generateAnalytics();
@@ -156,14 +218,21 @@ class LoadAnalyzer {
     }
   }
 
+  // ---------------------------------------------------------------------------
+  //  Data validation & cleaning
+  // ---------------------------------------------------------------------------
   validateAndProcessData(rawData, dateCol, timeCol) {
-    if (!rawData || rawData.length === 0)
-      throw new Error("CSV-Datei ist leer oder konnte nicht gelesen werden.");
+    if (!rawData || rawData.length === 0) {
+      throw new Error("CSV‑Datei ist leer oder konnte nicht gelesen werden.");
+    }
+
     const loadCols = Object.keys(rawData[0]).filter(
       (h) => h !== dateCol && h !== timeCol && this.isNumericColumn(rawData, h),
     );
-    if (loadCols.length === 0)
+    if (loadCols.length === 0) {
       throw new Error("Keine numerischen Lastspalten gefunden.");
+    }
+
     const processed = rawData
       .map((r) => {
         const ts = this.parseTimestamp(r[dateCol], timeCol ? r[timeCol] : null);
@@ -174,12 +243,13 @@ class LoadAnalyzer {
         });
         return row;
       })
-      .filter((r) => r)
+      .filter(Boolean)
       .sort((a, b) => a.timestamp - b.timestamp);
-    if (processed.length === 0)
-      throw new Error(
-        "Keine gültigen Datenzeilen nach der Bereinigung gefunden.",
-      );
+
+    if (processed.length === 0) {
+      throw new Error("Keine gültigen Datenzeilen nach der Bereinigung gefunden.");
+    }
+
     this.detectGaps(processed);
     return { data: processed, columns: loadCols, dateCol, timeCol };
   }
@@ -188,38 +258,37 @@ class LoadAnalyzer {
     const tsP = ["timestamp", "datetime", "zeitstempel"];
     const dateP = ["date", "datum"];
     const timeP = ["time", "uhrzeit"];
-    const timestamp = headers.find((h) =>
-      tsP.some((p) => h.toLowerCase().includes(p)),
-    );
-    const date = headers.find((h) =>
-      dateP.some((p) => h.toLowerCase().includes(p)),
-    );
-    const time = headers.find((h) =>
-      timeP.some((p) => h.toLowerCase().includes(p)),
-    );
+
+    const timestamp = headers.find((h) => tsP.some((p) => h.toLowerCase().includes(p)));
+    const date = headers.find((h) => dateP.some((p) => h.toLowerCase().includes(p)));
+    const time = headers.find((h) => timeP.some((p) => h.toLowerCase().includes(p)));
     return { timestamp, date, time };
   }
 
   parseTimestamp(dateStr, timeStr) {
     if (!dateStr) return null;
     const combined = timeStr ? `${dateStr} ${timeStr}` : dateStr;
-    // Benutzerdefiniertes Format
+
+    // Custom format -----------------------------------------------------------
     if (this.customDateFormat) {
       const dt = parse(combined, this.customDateFormat, new Date());
       if (isValid(dt)) return dt;
     }
-    // ISO / native
+
+    // ISO / native ------------------------------------------------------------
     const dtIso = new Date(combined);
     if (!isNaN(dtIso.getTime())) return dtIso;
-    // DMY
+
+    // DMY‑heuristic -----------------------------------------------------------
     const dmy =
-      /^(\d{1,2})[\.\/\-](\d{1,2})[\.\/\-](\d{2,4})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?/;
-    let m = combined.match(dmy);
+      /^(\d{1,2})[\.\/-](\d{1,2})[\.\/-](\d{2,4})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?/;
+    const m = combined.match(dmy);
     if (m) {
       let [_, d, mth, y, h = 0, min = 0, s = 0] = m;
       if (y.length === 2) y = "20" + y;
       return new Date(y, mth - 1, d, h, min, s);
     }
+
     return null;
   }
 
@@ -230,30 +299,37 @@ class LoadAnalyzer {
     }
     const avg = diffs.reduce((a, b) => a + b, 0) / diffs.length;
     const gaps = diffs.filter((d) => d > avg * 1.5);
-    if (gaps.length)
+    if (gaps.length) {
       console.warn("Lücken in den Zeitstempeln erkannt:", gaps.length);
+    }
   }
 
+  // ---------------------------------------------------------------------------
+  //  Resampling and column UI helpers
+  // ---------------------------------------------------------------------------
   applyResampling() {
     if (!this.data) return;
     if (!this.resolution) {
       this.resampled = this.data.data;
       return;
     }
+
     const buckets = {};
     this.data.data.forEach((r) => {
       const t = r.timestamp.getTime();
       const key = Math.floor(t / 1000 / 3600 / this.resolution);
-      if (!buckets[key])
+      if (!buckets[key]) {
         buckets[key] = {
           count: 0,
           timestamp: new Date(key * this.resolution * 3600 * 1000),
         };
+      }
       this.data.columns.forEach((c) => {
         buckets[key][c] = (buckets[key][c] || 0) + r[c];
       });
       buckets[key].count++;
     });
+
     this.resampled = Object.values(buckets)
       .map((b) => {
         const row = { timestamp: b.timestamp };
@@ -267,6 +343,8 @@ class LoadAnalyzer {
 
   setupColumnSelection() {
     const container = document.getElementById("column-checkboxes");
+    if (!container) return;
+
     container.innerHTML = "";
     this.data.columns.forEach((col) => {
       const div = document.createElement("div");
@@ -291,6 +369,21 @@ class LoadAnalyzer {
       .filter((cb) => cb.checked)
       .map((cb) => cb.value);
     this.generateAnalytics();
+  }
+
+  // ---------------------------------------------------------------------------
+  //  KPI & chart generation (unchanged logic)
+  // ---------------------------------------------------------------------------
+  generateAnalytics() {
+    if (!this.data || this.selectedColumns.length === 0) return;
+    this.generateKPIs();
+    this.generateLoadDurationCurve();
+    this.generateHistogram();
+    this.generateRealHeatmap();
+    this.generateMonthlyChart();
+    this.generateBoxplots();
+    this.generateDailyProfile();
+    this.generatePeakShaving();
   }
 
   generateAnalytics() {
@@ -724,11 +817,13 @@ class LoadAnalyzer {
       },
     });
   }
-
+  
+// ---------------------------------------------------------------------------
+  //  Utility helpers (calculateTotalConsumption, estimateIntervalHours, etc.)
+  // ---------------------------------------------------------------------------
   calculateTotalConsumption(col) {
-    const dataArr = this.resampled;
     const interval = this.estimateIntervalHours();
-    const sum = dataArr.reduce((a, r) => a + r[col] * interval, 0);
+    const sum = this.resampled.reduce((a, r) => a + r[col] * interval, 0);
     return this.unitMode === "energy" ? sum : sum / interval;
   }
 
@@ -753,8 +848,9 @@ class LoadAnalyzer {
       if (
         (typeof v === "number" && !isNaN(v)) ||
         (typeof v === "string" && !isNaN(parseFloat(v)))
-      )
+      ) {
         cnt++;
+      }
     }
     return cnt / sample > 0.7;
   }
@@ -768,41 +864,51 @@ class LoadAnalyzer {
     return 0;
   }
 
+  // ---------------------------------------------------------------------------
+  //  UI helpers (progress, error display, etc.)
+  // ---------------------------------------------------------------------------
   showProgress(pct, msg) {
     const bar = document.getElementById("progress-bar");
-    document.getElementById("progress-container").classList.remove("hidden");
+    const container = document.getElementById("progress-container");
+    if (!bar || !container) return;
+    container.classList.remove("hidden");
     bar.style.width = `${pct}%`;
-    document.getElementById("progress-text").textContent = msg;
+    document.getElementById("progress-text")!.textContent = msg;
   }
 
   hideProgress() {
-    document.getElementById("progress-container").classList.add("hidden");
+    document.getElementById("progress-container")?.classList.add("hidden");
   }
 
   showError(msg) {
     const e = document.getElementById("error-message");
-    e.textContent = msg;
-    e.classList.remove("hidden");
+    if (e) {
+      e.textContent = msg;
+      e.classList.remove("hidden");
+    }
     this.hideProgress();
   }
 
   showMainContent() {
-    document.getElementById("main-content").classList.remove("hidden");
-    document.getElementById("upload-section").style.display = "none";
+    document.getElementById("main-content")?.classList.remove("hidden");
+    const uploadSection = document.getElementById("upload-section");
+    if (uploadSection) uploadSection.style.display = "none";
   }
 
   showAddGroupModal() {
-    // TODO: Modal implementieren
+    // TODO: Implement modal
     console.log("Custom Group Modal öffnen");
   }
 
   saveCustomGroup() {
-    // TODO: Einlesen der Modal-Daten und this.customGroups.push(...)
+    // TODO: Retrieve modal data and push into this.customGroups
     console.log("Custom Group speichern");
   }
 }
 
-// Chart Download
+// -----------------------------------------------------------------------------
+//  Chart download helper (unchanged)
+// -----------------------------------------------------------------------------
 export function downloadChart(chartId) {
   const canvas = document.getElementById(chartId);
   if (!canvas) return;
@@ -811,5 +917,9 @@ export function downloadChart(chartId) {
   link.href = canvas.toDataURL("image/png");
   link.click();
 }
+
+// -----------------------------------------------------------------------------
+//  Bootstrap
+// -----------------------------------------------------------------------------
 
 document.addEventListener("DOMContentLoaded", () => new LoadAnalyzer());
