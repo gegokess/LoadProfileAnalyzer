@@ -410,6 +410,11 @@ class LoadAnalyzer {
     }
 
     createHistogramBins(values, numBins) {
+        // Return empty bins when no data is present
+        if (values.length === 0) {
+            return Array.from({ length: numBins }, () => ({ min: 0, max: 0, count: 0 }));
+        }
+
         const min = Math.min(...values);
         const max = Math.max(...values);
         const binWidth = (max - min) / numBins;
