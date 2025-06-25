@@ -341,7 +341,7 @@ class LoadAnalyzer {
     const monthly = Array.from({length:12},()=>({})); const interval=this.estimateIntervalHours();
     this.resampled.forEach(r=>{ const m=r.timestamp.getMonth(); this.selectedColumns.forEach(col=>{ monthly[m][col]=(monthly[m][col]||0)+(r[col]*interval)/1000; }); });
     const datasets = this.selectedColumns.map((col,i)=>({ label:col,data:monthly.map(m=>m[col]||0), backgroundColor:this.getColor(i,0.7), borderColor:this.getColor(i), borderWidth:1 }));
-    this.charts.monthly = new Chart(ctx,{type:'bar',data:{labels:['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'],datasets}, options:{responsive:true, plugins:{title:{display:true,text:'Monatsverbrauch'},legend:{display:this.selectedColumns.length>1}}, scales:{x:{title:{display>true,text:'Monat'}},y:{title:{display:true,text:'Verbrauch (MWh)'}}}}});
+    this.charts.monthly = new Chart(ctx,{type:'bar',data:{labels:['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'],datasets}, options:{responsive:true, plugins:{title:{display:true,text:'Monatsverbrauch'},legend:{display:this.selectedColumns.length>1}}, scales:{x:{title:{display:true,text:'Monat'}},y:{title:{display:true,text:'Verbrauch (MWh)'}}}}});
   }
 
   generateBoxplots() {
