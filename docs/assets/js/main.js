@@ -40,13 +40,19 @@ class LoadAnalyzer {
     this.resolution = null; // in hours
     this.customDateFormat = null;
     this.customGroups = [];
+    this.debug = true;
     this.initializeEventListeners();
+  }
+
+  debugLog(...args) {
+    if (this.debug) console.log("[LoadAnalyzer DEBUG]", ...args);
   }
 
   // ---------------------------------------------------------------------------
   //  DOM Event‑Handling helpers
   // ---------------------------------------------------------------------------
   initializeEventListeners() {
+    this.debugLog("initializeEventListeners");
     const dropZone = document.getElementById("drop-zone");
     const fileInput = document.getElementById("file-input");
     const resolutionSelect = document.getElementById("resolution-select");
@@ -109,11 +115,13 @@ class LoadAnalyzer {
   //  Drag & drop helpers
   // ---------------------------------------------------------------------------
   handleDragOver(e) {
+    this.debugLog("dragover");
     e.preventDefault();
     e.currentTarget.classList.add("border-blue-500", "bg-blue-50");
   }
 
   handleFileDrop(e) {
+    this.debugLog("file drop");
     e.preventDefault();
     e.currentTarget.classList.remove("border-blue-500", "bg-blue-50");
     const files = e.dataTransfer.files;
@@ -124,6 +132,7 @@ class LoadAnalyzer {
   //  CSV file parsing & validation
   // ---------------------------------------------------------------------------
   processFile(file) {
+    this.debugLog("processFile", file.name);
     if (!file.name.toLowerCase().endsWith(".csv")) {
       this.showError("Bitte wählen Sie eine CSV‑Datei aus.");
       return;
@@ -144,6 +153,7 @@ class LoadAnalyzer {
   }
 
   handleParseComplete(results) {
+    this.debugLog("parse complete", results.data.length);
     if (results.errors.length > 0) {
       console.warn("CSV Parsing Warnings:", results.errors);
     }
@@ -154,6 +164,7 @@ class LoadAnalyzer {
   }
 
   handleParseError(error) {
+    this.debugLog("parse error", error);
     this.showError(`Fehler beim Einlesen der CSV: ${error.message}`);
   }
 
@@ -204,6 +215,8 @@ class LoadAnalyzer {
     const dateCol = document.getElementById("date-column")?.value;
     const timeCol = document.getElementById("time-column")?.value || null;
 
+    this.debugLog("timestamp confirm", dateCol, timeCol);
+
     try {
       this.data = this.validateAndProcessData(this.rawData, dateCol, timeCol);
       document.getElementById("timestamp-selection")?.classList.add("hidden");
@@ -213,6 +226,7 @@ class LoadAnalyzer {
       this.showMainContent();
       this.showProgress(100, "Fertig!");
       setTimeout(() => this.hideProgress(), 500);
+      this.debugLog("timestamp confirmed and analytics generated");
     } catch (e) {
       this.showError(e.message);
     }
@@ -247,7 +261,9 @@ class LoadAnalyzer {
       .sort((a, b) => a.timestamp - b.timestamp);
 
     if (processed.length === 0) {
-      throw new Error("Keine gültigen Datenzeilen nach der Bereinigung gefunden.");
+      throw new Error(
+        "Keine gültigen Datenzeilen nach der Bereinigung gefunden.",
+      );
     }
 
     this.detectGaps(processed);
@@ -259,9 +275,15 @@ class LoadAnalyzer {
     const dateP = ["date", "datum"];
     const timeP = ["time", "uhrzeit"];
 
-    const timestamp = headers.find((h) => tsP.some((p) => h.toLowerCase().includes(p)));
-    const date = headers.find((h) => dateP.some((p) => h.toLowerCase().includes(p)));
-    const time = headers.find((h) => timeP.some((p) => h.toLowerCase().includes(p)));
+    const timestamp = headers.find((h) =>
+      tsP.some((p) => h.toLowerCase().includes(p)),
+    );
+    const date = headers.find((h) =>
+      dateP.some((p) => h.toLowerCase().includes(p)),
+    );
+    const time = headers.find((h) =>
+      timeP.some((p) => h.toLowerCase().includes(p)),
+    );
     return { timestamp, date, time };
   }
 
@@ -308,6 +330,7 @@ class LoadAnalyzer {
   //  Resampling and column UI helpers
   // ---------------------------------------------------------------------------
   applyResampling() {
+    this.debugLog("applyResampling", this.resolution);
     if (!this.data) return;
     if (!this.resolution) {
       this.resampled = this.data.data;
@@ -375,6 +398,7 @@ class LoadAnalyzer {
   //  KPI & chart generation (unchanged logic)
   // ---------------------------------------------------------------------------
   generateAnalytics() {
+    this.debugLog("generateAnalytics", this.selectedColumns);
     if (!this.data || this.selectedColumns.length === 0) return;
     this.generateKPIs();
     this.generateLoadDurationCurve();
@@ -387,6 +411,7 @@ class LoadAnalyzer {
   }
 
   generateAnalytics() {
+    this.debugLog("generateAnalytics", this.selectedColumns);
     if (!this.data || this.selectedColumns.length === 0) return;
     this.generateKPIs();
     this.generateLoadDurationCurve();
@@ -817,8 +842,8 @@ class LoadAnalyzer {
       },
     });
   }
-  
-// ---------------------------------------------------------------------------
+
+  // ---------------------------------------------------------------------------
   //  Utility helpers (calculateTotalConsumption, estimateIntervalHours, etc.)
   // ---------------------------------------------------------------------------
   calculateTotalConsumption(col) {
@@ -868,6 +893,7 @@ class LoadAnalyzer {
   //  UI helpers (progress, error display, etc.)
   // ---------------------------------------------------------------------------
   showProgress(pct, msg) {
+    this.debugLog("progress", pct, msg);
     const bar = document.getElementById("progress-bar");
     const container = document.getElementById("progress-container");
     if (!bar || !container) return;
@@ -877,10 +903,12 @@ class LoadAnalyzer {
   }
 
   hideProgress() {
+    this.debugLog("hideProgress");
     document.getElementById("progress-container")?.classList.add("hidden");
   }
 
   showError(msg) {
+    this.debugLog("showError", msg);
     const e = document.getElementById("error-message");
     if (e) {
       e.textContent = msg;
@@ -890,6 +918,7 @@ class LoadAnalyzer {
   }
 
   showMainContent() {
+    this.debugLog("showMainContent");
     document.getElementById("main-content")?.classList.remove("hidden");
     const uploadSection = document.getElementById("upload-section");
     if (uploadSection) uploadSection.style.display = "none";
@@ -897,11 +926,13 @@ class LoadAnalyzer {
 
   showAddGroupModal() {
     // TODO: Implement modal
+    this.debugLog("showAddGroupModal");
     console.log("Custom Group Modal öffnen");
   }
 
   saveCustomGroup() {
     // TODO: Retrieve modal data and push into this.customGroups
+    this.debugLog("saveCustomGroup");
     console.log("Custom Group speichern");
   }
 }
